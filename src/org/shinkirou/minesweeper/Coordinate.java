@@ -6,7 +6,7 @@
 package org.shinkirou.minesweeper;
 
 /**
- *
+ * Represents a coordinate.
  * @author SHiNKiROU
  */
 public class Coordinate {

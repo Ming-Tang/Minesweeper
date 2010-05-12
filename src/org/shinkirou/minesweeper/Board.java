@@ -6,7 +6,6 @@ import java.util.Stack;
 /**
  * A class for minesweeper board.
  * @author SHiNKiROU
- * @version 0.0
  */
 public class Board {
 	private int width;

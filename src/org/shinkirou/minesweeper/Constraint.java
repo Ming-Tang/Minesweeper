@@ -54,15 +54,6 @@ public class Constraint implements Set<Coordinate> {
 		this.mines = mines;
 	}
 
-	/**
-	 * Gets the probability of hitting a mine.
-	 * @return Probability of hitting a mine, calculated by number of mines
-	 * divides the size of the set.
-	 */
-	public float probability() {
-		return mines / set.size();
-	}
-
 	public int size() {
 		return set.size();
 	}
