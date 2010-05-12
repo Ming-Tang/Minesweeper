@@ -34,7 +34,7 @@ public class Board {
 	 * @param mines Number of mines.
 	 * @throws IllegalArgumentException When one or more parameters are &lt; 1.
 	 */
-	public void initialize(int w, int h, int mines) throws IllegalArgumentException {
+	private void initialize(int w, int h, int mines) throws IllegalArgumentException {
 		if (w < 1 || h < 1 || mines < 1) {
 			// cannot initialize arrays with size if width < 1,
 			// height < 1 or mineCount < 1

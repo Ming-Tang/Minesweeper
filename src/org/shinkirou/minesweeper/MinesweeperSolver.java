@@ -23,18 +23,9 @@ public class MinesweeperSolver {
 	}
 
 	/**
-	 * Perform an {@link MinesweeperSolver#iteration(boolean)} without
-	 * any guesswork.
+	 * Perform an iteration of the solving process.
 	 */
 	public void iteration() {
-		iteration(false);
-	}
-
-	/**
-	 * Perform an iteration of the solving process.
-	 * @param guess True to perform guesswork.
-	 */
-	public void iteration(boolean guess) {
 		count ++;
 		// make sure the board is not solved or failed
 		if (board.isSolved() || board.isFailed()) {
@@ -176,7 +167,6 @@ public class MinesweeperSolver {
 		}
 
 		// 3: mark or probe the squares
-		boolean probed = false;
 		for (Constraint e : sets) {
 			byte m = e.getMines();
 
@@ -185,33 +175,12 @@ public class MinesweeperSolver {
 				for (Coordinate c : e) {
 					board.probe(c.x, c.y);
 				}
-				probed = true;
 			} else if (m == e.size()) {
 				// if the no. of mines is same as no. of squares, all the
 				// squares are mines
 				for (Coordinate c : e) {
 					board.mark(c.x, c.y);
 				}
-				probed = true;
-			}
-		}
-
-		// 4: perform some guesswork if constraint solving did not work
-		//   (don't guess if the minesweeper is solved)
-		if (guess && !(board.isSolved() || board.isFailed())) {
-			if (sets.size() == 0) {
-				board.probe((int) (Math.random() * board.getWidth()), (int) (Math.random() * board.getHeight()));
-			} else if (!probed) {
-				float bestProbability = 1;
-				Constraint best = null;
-				for (Constraint e : sets) {
-					if (e.probability() < bestProbability) {
-						best = e;
-					}
-				}
-				Coordinate[] coords = best.toArray(new Coordinate[best.size()]);
-				Coordinate coord = coords[(int) (Math.random() * coords.length)];
-				board.probe(coord.x, coord.y);
 			}
 		}
 	}
