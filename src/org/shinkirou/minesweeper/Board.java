@@ -132,10 +132,6 @@ public class Board {
 		// probe it
 		probes[y][x] = true;
 
-		// unmark the square
-		if (marks[y][x]) {
-			marks[y][x] = false;
-		}
 		// if probed a mine: fail
 		if (values[y][x] == 9) {
 			return;
@@ -160,8 +156,8 @@ public class Board {
 						if (values[sy - 1][sx - 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx - 1, sy - 1));
-						} else if (values[sy - 1][sx - 1] != 9) {
-							// if not mine: probe it
+						} else if (!marks[sy - 1][sx - 1]) {
+							// if not marked: probe it
 							probes[sy - 1][sx - 1] = true;
 						}
 					}
@@ -170,8 +166,8 @@ public class Board {
 						if (values[sy - 1][sx] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx, sy - 1));
-						} else if (values[sy][sx] != 9) {
-							// if not mine: probe it
+						} else if (!marks[sy][sx]) {
+							// if not marked: probe it
 							probes[sy - 1][sx] = true;
 						}
 					}
@@ -180,8 +176,8 @@ public class Board {
 						if (values[sy - 1][sx + 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx + 1, sy - 1));
-						} else if (values[sy - 1][sx + 1] != 9) {
-							// if not mine: probe it
+						} else if (!marks[sy - 1][sx + 1]) {
+							// if not marked: probe it
 							probes[sy - 1][sx + 1] = true;
 						}
 					}
@@ -190,8 +186,8 @@ public class Board {
 						if (values[sy][sx - 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx - 1, sy));
-						} else if (values[sy][sx - 1] != 9) {
-							// if not mine: probe it
+						} else if (!marks[sy][sx - 1]) {
+							// if not marked: probe it
 							probes[sy][sx - 1] = true;
 						}
 					}
@@ -200,8 +196,8 @@ public class Board {
 						if (values[sy][sx + 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx + 1, sy));
-						} else if (values[sy][sx + 1] != 9) {
-							// if not mine: probe it
+						} else if (!marks[sy][sx + 1]) {
+							// if not marked: probe it
 							probes[sy][sx + 1] = true;
 						}
 					}
@@ -210,8 +206,8 @@ public class Board {
 						if (values[sy + 1][sx - 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx - 1, sy + 1));
-						} else if (values[sy + 1][sx - 1] != 9) {
-							// if not mine: probe it
+						} else if (!marks[sy + 1][sx - 1]) {
+							// if not marked: probe it
 							probes[sy + 1][sx - 1] = true;
 						}
 					}
@@ -220,8 +216,8 @@ public class Board {
 						if (values[sy + 1][sx] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx, sy + 1));
-						} else if (values[sy + 1][sx] != 9) {
-							// if not mine: probe it
+						} else if (!marks[sy + 1][sx]) {
+							// if not marked: probe it
 							probes[sy + 1][sx] = true;
 						}
 					}
@@ -230,8 +226,8 @@ public class Board {
 						if (values[sy + 1][sx + 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx + 1, sy + 1));
-						} else if (values[sy + 1][sx + 1] != 9) {
-							// if not mine: probe it
+						} else if (!marks[sy + 1][sx + 1]) {
+							// if not marked: probe it
 							probes[sy + 1][sx + 1] = true;
 						}
 					}

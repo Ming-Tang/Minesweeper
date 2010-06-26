@@ -2,12 +2,14 @@ package org.shinkirou.minesweeper;
 
 import org.shinkirou.util.SetOperations;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The class for the minesweeper solving algorithm.
  * @author SHiNKiROU
  */
 public class MinesweeperSolver {
+
 	private Board board;
 	private HashSet<Constraint> sets;
 	private int count;
@@ -136,10 +138,7 @@ public class MinesweeperSolver {
 						}
 					}
 					e.setMines(n);
-					// add only if the set is not empty
-					if (e.size() > 0) {
-						sets.add(e);
-					}
+					sets.add(e);
 				}
 			}
 		}
@@ -150,15 +149,15 @@ public class MinesweeperSolver {
 			changed = false;
 			for (Constraint e1 : sets) {
 				for (Constraint e2 : sets) {
-					if (!SetOperations.identity(e1, e2)) {
+					if ( ! SetOperations.identity(e1, e2)) {
 						// if e1 proper subset e2, c = e2 diff e1,
 						//    mines of c = mines of e2 - mines of e1
 						if (SetOperations.properSubset(e1, e2)) {
-							Constraint c = (Constraint) SetOperations.difference(e1, e2);
-							c.setMines((byte) (e2.getMines() - e1.getMines()));
-							if (c.size() > 0) {
-								sets.add(c);
-							}
+							Set<Coordinate> set = SetOperations.difference(e2, e1);
+							Constraint c = new Constraint(
+								(byte) (e2.getMines() - e1.getMines()),
+								set);
+							sets.add(c);
 							changed = true;
 						}
 					}
