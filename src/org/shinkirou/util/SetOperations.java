@@ -56,7 +56,7 @@ public class SetOperations {
 	}
 
 	public static <T> boolean properSubset(Set<T> a, Set<T> b) {
-		return a.size() != b.size() && subset(a, b);
+		return a.size() < b.size() && subset(a, b);
 	}
 
 	public static <T> boolean properSuperset(Set<T> a, Set<T> b) {

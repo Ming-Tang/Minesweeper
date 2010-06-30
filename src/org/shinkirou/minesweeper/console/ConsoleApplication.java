@@ -80,7 +80,7 @@ public class ConsoleApplication {
 			} catch (NumberFormatException e) {
 				System.err.println("Invalid numbers.");
 			} catch (Exception e) {
-				continue;
+				e.printStackTrace(System.out);
 			}
 		}
 		if (b.isSolved()) {

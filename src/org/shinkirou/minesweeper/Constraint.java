@@ -54,6 +54,10 @@ public class Constraint implements Set<Coordinate> {
 		this.mines = mines;
 	}
 
+	public Set<Coordinate> getSet() {
+		return set;
+	}
+
 	public int size() {
 		return set.size();
 	}
@@ -108,6 +112,23 @@ public class Constraint implements Set<Coordinate> {
 
 	@Override
 	public String toString() {
-		return super.toString() + ":" + set.toString();
+		return set.toString() + " (" + mines + " mines)";
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Constraint)) {
+			return false;
+		}
+		Constraint other = (Constraint) obj;
+		return mines == other.mines && set.equals(other.set);
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 5;
+		hash = 59 * hash + (this.set != null ? this.set.hashCode() : 0);
+		hash = 59 * hash + this.mines;
+		return hash;
 	}
 }

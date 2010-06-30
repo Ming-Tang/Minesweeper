@@ -1,8 +1,7 @@
 package org.shinkirou.minesweeper;
 
 import org.shinkirou.util.SetOperations;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The class for the minesweeper solving algorithm.
@@ -11,8 +10,9 @@ import java.util.Set;
 public class MinesweeperSolver {
 
 	private Board board;
-	private HashSet<Constraint> sets;
+	private Set<Constraint> sets;
 	private int count;
+	private boolean inspected = false;
 
 	/**
 	 * Constructs an instance of <code>MinesweeperSolver</code>
@@ -24,17 +24,8 @@ public class MinesweeperSolver {
 		this.count = 0;
 	}
 
-	/**
-	 * Perform an iteration of the solving process.
-	 */
-	public void iteration() {
-		count ++;
-		// make sure the board is not solved or failed
-		if (board.isSolved() || board.isFailed()) {
-			throw new IllegalStateException("The board is already solved or failed.");
-		}
+	public void inspect() {
 		sets.clear();
-		// 1: find all constraints
 		for (int y = 0, w = board.getWidth(), h = board.getHeight(); y < h; y ++) {
 			for (int x = 0; x < w; x ++) {
 				byte n = board.getInformation(x, y);
@@ -138,7 +129,9 @@ public class MinesweeperSolver {
 						}
 					}
 					e.setMines(n);
-					sets.add(e);
+					if ( ! e.isEmpty()) {
+						sets.add(e);
+					}
 				}
 			}
 		}
@@ -147,25 +140,43 @@ public class MinesweeperSolver {
 		boolean changed = true;
 		while (changed) {
 			changed = false;
-			for (Constraint e1 : sets) {
-				for (Constraint e2 : sets) {
-					if ( ! SetOperations.identity(e1, e2)) {
+			Constraint[] list = {};
+			list = sets.toArray(list);
+			// using Iterators causes ConcurrentModificationException
+			for (Constraint e1 : list) {
+				for (Constraint e2 : list) {
+					if (!e1.equals(e2)) {
 						// if e1 proper subset e2, c = e2 diff e1,
 						//    mines of c = mines of e2 - mines of e1
-						if (SetOperations.properSubset(e1, e2)) {
+						if (SetOperations.properSubset(e1.getSet(), e2.getSet())) {
 							Set<Coordinate> set = SetOperations.difference(e2, e1);
 							Constraint c = new Constraint(
 								(byte) (e2.getMines() - e1.getMines()),
 								set);
-							sets.add(c);
-							changed = true;
+							changed = changed || sets.add(c);
 						}
 					}
 				}
 			}
 		}
+		inspected = true;
+	}
 
-		// 3: mark or probe the squares
+	/**
+	 * Perform an iteration of the solving process.
+	 */
+	public void iteration() {
+		count ++;
+		// make sure the board is not solved or failed
+		if (board.isSolved() || board.isFailed()) {
+			throw new IllegalStateException("The board is already solved or failed.");
+		}
+		// find all constraints
+		if ( ! inspected) {
+			inspect();
+		}
+
+		// mark or probe the squares
 		for (Constraint e : sets) {
 			byte m = e.getMines();
 
@@ -182,6 +193,7 @@ public class MinesweeperSolver {
 				}
 			}
 		}
+		inspected = false;
 	}
 
 	/**
@@ -204,7 +216,7 @@ public class MinesweeperSolver {
 	 * Gets the sets of the constraints.
 	 * @return The constraints.
 	 */
-	public HashSet<Constraint> getSets() {
+	public Set<Constraint> getSets() {
 		return this.sets;
 	}
 

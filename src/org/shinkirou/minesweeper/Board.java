@@ -8,10 +8,11 @@ import java.util.Stack;
  * @author SHiNKiROU
  */
 public class Board {
+
+	private boolean firstClick;
 	private int width;
 	private int height;
-	private int mineCount;
-
+	private int mines;
 	private byte[][] values;
 	private boolean[][] probes;
 	private boolean[][] marks;
@@ -20,41 +21,37 @@ public class Board {
 	 * Constructs and initializes a new minesweeper board.
 	 * @param width The width of the initial board, as an array size unit.
 	 * @param height The height of the initial board, as an array size unit.
-	 * @param mineCount Number of mines.
+	 * @param mines Number of mines.
 	 */
-	public Board(int width, int height, int mineCount) {
-		initialize(width, height, mineCount);
+	public Board(int width, int height, int mines) {
+		firstClick = false;
+		preinit(width, height, mines);
 	}
 
-	/**
-	 * Initializes the board.
-	 * @param w The width of the initial board, as an array size unit.
-	 * @param h The height of the initial board, as an array size unit.
-	 * @param mines Number of mines.
-	 * @throws IllegalArgumentException When one or more parameters are &lt; 1.
-	 */
-	private void initialize(int w, int h, int mines) throws IllegalArgumentException {
-		if (w < 1 || h < 1 || mines < 1) {
+	private void preinit(int w, int h, int mi) {
+		// set state variables
+		width = w;
+		height = h;
+		mines = mi;
+
+		// initialize board
+		values = new byte[height][width];
+		probes = new boolean[height][width];
+		marks = new boolean[height][width];
+	}
+
+	private void initialize(int sx, int sy) throws IllegalArgumentException {
+		if (width < 1 || height < 1 || mines < 1) {
 			// cannot initialize arrays with size if width < 1,
-			// height < 1 or mineCount < 1
+			// height < 1 or mines < 1
 			throw new IllegalArgumentException(
 				"Invalid board configuration: width="
 				+ width + ", height="
-				+ height + ", mineCount = "
-				+ mines + ". They must be greater than 0."
-			);
+				+ height + ", mines = "
+				+ mines + ". They must be greater than 0.");
 		} else {
-			// set state variables
-			width = w;
-			height = h;
-			mineCount = mines;
-
-			// initialize board
-			values = new byte[height][width];
-			probes = new boolean[height][width];
-			marks = new boolean[height][width];
-
-			label: {
+			label:
+			{
 				Random r = new Random();
 				int m = 0;
 				int n = mines;
@@ -62,8 +59,10 @@ public class Board {
 				while (m < n) {
 					int x = r.nextInt(width);
 					int y = r.nextInt(height);
-					// make sure it is not an existing mine
-					if (values[y][x] != 9) {
+					// make sure it is not an existing mine and not (sx, sy)
+					if (values[y][x] != 9 && x != sx && y != sy
+						&& x != sx - 1 && x != sx + 1 && y != sy - 1
+						&& y != sy + 1) {
 						// place it
 						values[y][x] = 9;
 						m ++;
@@ -124,6 +123,10 @@ public class Board {
 	 * @param y The Y coordinate of the square, as an array index.
 	 */
 	public void probe(int x, int y) {
+		if ( ! firstClick) {
+			initialize(x, y);
+			firstClick = true;
+		}
 		// cannot probe marked squares
 		if (marks[y][x]) {
 			return;
@@ -143,7 +146,7 @@ public class Board {
 				// push this coordinate
 				stack.push(new Coordinate(x, y));
 				// this is a stack-based flood-fill algorithm
-				while (!stack.empty()) {
+				while ( ! stack.empty()) {
 					// get coordinates
 					Coordinate i = stack.pop();
 					int sx = i.x;
@@ -152,81 +155,81 @@ public class Board {
 
 					// look around
 					// top-left
-					if (sy - 1 > -1 && sx - 1 > -1 && !probes[sy - 1][sx - 1]) {
+					if (sy - 1 > -1 && sx - 1 > -1 &&  ! probes[sy - 1][sx - 1]) {
 						if (values[sy - 1][sx - 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx - 1, sy - 1));
-						} else if (!marks[sy - 1][sx - 1]) {
+						} else if ( ! marks[sy - 1][sx - 1]) {
 							// if not marked: probe it
 							probes[sy - 1][sx - 1] = true;
 						}
 					}
 					// top
-					if (sy - 1 > -1 && !probes[sy - 1][sx]) {
+					if (sy - 1 > -1 &&  ! probes[sy - 1][sx]) {
 						if (values[sy - 1][sx] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx, sy - 1));
-						} else if (!marks[sy][sx]) {
+						} else if ( ! marks[sy][sx]) {
 							// if not marked: probe it
 							probes[sy - 1][sx] = true;
 						}
 					}
 					// top-right
-					if (sy - 1 > -1 && sx + 1 < width && !probes[sy - 1][sx + 1]) {
+					if (sy - 1 > -1 && sx + 1 < width &&  ! probes[sy - 1][sx + 1]) {
 						if (values[sy - 1][sx + 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx + 1, sy - 1));
-						} else if (!marks[sy - 1][sx + 1]) {
+						} else if ( ! marks[sy - 1][sx + 1]) {
 							// if not marked: probe it
 							probes[sy - 1][sx + 1] = true;
 						}
 					}
 					// mid-left
-					if (sx - 1 > -1 && !probes[sy][sx - 1]) {
+					if (sx - 1 > -1 &&  ! probes[sy][sx - 1]) {
 						if (values[sy][sx - 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx - 1, sy));
-						} else if (!marks[sy][sx - 1]) {
+						} else if ( ! marks[sy][sx - 1]) {
 							// if not marked: probe it
 							probes[sy][sx - 1] = true;
 						}
 					}
 					// mid-right
-					if (sx + 1 < width && !probes[sy][sx + 1]) {
+					if (sx + 1 < width &&  ! probes[sy][sx + 1]) {
 						if (values[sy][sx + 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx + 1, sy));
-						} else if (!marks[sy][sx + 1]) {
+						} else if ( ! marks[sy][sx + 1]) {
 							// if not marked: probe it
 							probes[sy][sx + 1] = true;
 						}
 					}
 					// lower-left
-					if (sy + 1 < height && sx - 1 > -1 && !probes[sy + 1][sx - 1]) {
+					if (sy + 1 < height && sx - 1 > -1 &&  ! probes[sy + 1][sx - 1]) {
 						if (values[sy + 1][sx - 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx - 1, sy + 1));
-						} else if (!marks[sy + 1][sx - 1]) {
+						} else if ( ! marks[sy + 1][sx - 1]) {
 							// if not marked: probe it
 							probes[sy + 1][sx - 1] = true;
 						}
 					}
 					// lower
-					if (sy + 1 < height && !probes[sy + 1][sx]) {
+					if (sy + 1 < height &&  ! probes[sy + 1][sx]) {
 						if (values[sy + 1][sx] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx, sy + 1));
-						} else if (!marks[sy + 1][sx]) {
+						} else if ( ! marks[sy + 1][sx]) {
 							// if not marked: probe it
 							probes[sy + 1][sx] = true;
 						}
 					}
 					// lower-right
-					if (sy + 1 < height && sx + 1 < width && !probes[sy + 1][sx + 1]) {
+					if (sy + 1 < height && sx + 1 < width &&  ! probes[sy + 1][sx + 1]) {
 						if (values[sy + 1][sx + 1] == 0) {
 							// if empty: remember to look ahead for it
 							stack.push(new Coordinate(sx + 1, sy + 1));
-						} else if (!marks[sy + 1][sx + 1]) {
+						} else if ( ! marks[sy + 1][sx + 1]) {
 							// if not marked: probe it
 							probes[sy + 1][sx + 1] = true;
 						}
@@ -243,20 +246,23 @@ public class Board {
 	 */
 	public void mark(int x, int y) {
 		// cannot mark probed squares
-		if (!probes[y][x]) {
+		if (!probes[y][x] && !marks[y][x]) {
 			// mark it
 			marks[y][x] = true;
 		}
 	}
 
 	/**
-	 * Unmarks a flag.
+	 * Un-marks a flag.
 	 * @param x The X coordinate of the square, as an array index.
 	 * @param y The Y coordinate of the square, as an array index.
 	 */
 	public void unmark(int x, int y) {
-		marks[y][x] = false;
+		if (marks[y][x]) {
+			marks[y][x] = false;
+		}
 	}
+
 	/**
 	 * Gets the value of a square.
 	 * @param x The X coordinate of the square, as an array index.
@@ -288,8 +294,8 @@ public class Board {
 	 * @return A number represents the value of the square. The values are:
 	 * <ul>
 	 *   <li><b>0 to 8:</b> The number of mines around it.</li>
-	 *   <li><b>9:</b> Marked as a mine.</li>
-	 *   <li><b>10:</b> Unmarked and unprobed.</li>
+	 *   <li><b>9:</b> Marked as a mine. (when game over: exposed mine)</li>
+	 *   <li><b>10:</b> Unmarked and un-probed.</li>
 	 * </ul>
 	 */
 	public byte getInformation(int x, int y) {
@@ -305,7 +311,8 @@ public class Board {
 	}
 
 	/**
-	 * Returns a string representation of the board state.
+	 * Returns a string representation of the board state
+	 * intended to displayed on a text interface or text output.
 	 * @return The string of the board state.
 	 */
 	public String display() {
@@ -348,8 +355,8 @@ public class Board {
 		return height;
 	}
 
-	public int getMineCount() {
-		return mineCount;
+	public int getMines() {
+		return mines;
 	}
 
 	public byte[][] getValues() {
@@ -365,6 +372,9 @@ public class Board {
 	}
 
 	public boolean isSolved() {
+		if ( ! firstClick) {
+			return false;
+		}
 		int n = 0;
 		// count the marked squares
 		for (int y = 0; y < height; y ++) {
@@ -372,17 +382,20 @@ public class Board {
 				if (marks[y][x] && values[y][x] == 9) {
 					// a marked square and a mine under it
 					n ++;
-				} else if (!probes[y][x] && !marks[y][x]) {
+				} else if ( ! probes[y][x] &&  ! marks[y][x]) {
 					// if a square is unprobed and unmarked, not solved
 					return false;
 				}
 			}
 		}
 		// set solved to true if the marked squares equals the number of mines
-		return n == mineCount;
+		return n == mines;
 	}
 
 	public boolean isFailed() {
+		if ( ! firstClick) {
+			return false;
+		}
 		// loop through all squares
 		for (int y = 0; y < height; y ++) {
 			for (int x = 0; x < width; x ++) {
