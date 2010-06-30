@@ -59,10 +59,9 @@ public class Board {
 				while (m < n) {
 					int x = r.nextInt(width);
 					int y = r.nextInt(height);
-					// make sure it is not an existing mine and not (sx, sy)
-					if (values[y][x] != 9 && x != sx && y != sy
-						&& x != sx - 1 && x != sx + 1 && y != sy - 1
-						&& y != sy + 1) {
+					// make sure it is not an existing mine and not beside the mouse
+					if (values[y][x] != 9 &&
+					    !(x >= sx - 1 && x <= sx + 1 && y >= sy - 1 && y <= sy + 1)) {
 						// place it
 						values[y][x] = 9;
 						m ++;
